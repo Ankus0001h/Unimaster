@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1280">
+    <title>Command Center | UniMaster</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Premium Google Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #0F172A;
+            /* Slate 900 */
+            --accent: #F59E0B;
+            /* Amber 500 */
+            --accent-light: #FFFBEB;
+            /* Amber 50 */
+            --bg-main: #F8FAFC;
+            /* Slate 50 - Light Theme */
+            --surface: #FFFFFF;
+            /* White */
+            --text-dark: #0F172A;
+            /* Slate 900 */
+            --text-light: #64748B;
+            /* Slate 500 */
+            --border: #E2E8F0;
+            /* Slate 200 */
+            --success: #10B981;
+            /* Emerald 500 */
+            --danger: #EF4444;
+            /* Red 500 */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-main);
+            display: flex;
+            height: 100vh;
+            color: var(--text-dark);
+            overflow: hidden;
+        }
+
+        .material-symbols-rounded {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: 280px;
+            background: var(--primary);
+            border-right: 1px solid var(--primary);
+            padding: 24px 0;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: 10;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .brand {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            background: var(--accent);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+
+        .brand-text {
+            font-weight: 700;
+            color: #FFFFFF;
+            font-size: 1.25rem;
+            line-height: 1.2;
+        }
+
+        .brand-text small {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #94A3B8;
+        }
+
+        .nav-item {
+            padding: 12px 24px;
+            color: #94A3B8;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            font-size: 0.95rem;
+            margin: 2px 0;
+        }
+
+        .nav-item:hover {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item.active {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent);
+            border-left: 3px solid var(--accent);
+            font-weight: 600;
+        }
+
+        .nav-item .material-symbols-rounded {
+            font-size: 20px;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 12px 24px;
+        }
+
+        /* ── Main Content ── */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .topbar {
+            background: var(--surface);
+            padding: 16px 32px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 5;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .topbar h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            letter-spacing: -0.02em;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .badge {
+            background: var(--accent-light);
+            color: #B45309;
+            border: 1px solid #FDE68A;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .btn-logout {
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .btn-logout:hover {
+            color: var(--danger);
+        }
+
+        .page-content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--surface);
+            padding: 28px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .card h3 {
+            margin: 0 0 8px;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card h3 .material-symbols-rounded {
+            color: var(--text-light);
+        }
+
+        .card p {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin: 0 0 20px;
+            font-size: 0.95rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 24px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-icon {
+            background: var(--bg-main);
+            color: var(--text-light);
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon.amber {
+            background: var(--accent-light);
+            color: #D97706;
+        }
+
+        .stat-icon.green {
+            background: #DCFCE7;
+            color: var(--success);
+        }
+
+        .stat-box h4 {
+            margin: 0;
+            color: var(--text-light);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .stat-box .val {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-top: 4px;
+            letter-spacing: -0.02em;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: #334155;
+        }
+
+        .btn:disabled {
+            background: #94A3B8;
+            cursor: not-allowed;
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .btn-accent:hover {
+            background: #D97706;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            background: var(--surface);
+        }
+
+        th,
+        td {
+            padding: 14px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: #F8FAFC;
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: #F8FAFC;
+        }
+
+        .code-badge {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-main);
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            color: var(--text-dark);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .btn-approve {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-approve:hover {
+            background: #059669;
+        }
+
+        .btn-reject {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin-left: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-reject:hover {
+            background: #DC2626;
+        }
+
+        /* Terminal */
+        .terminal {
+            background: #0F172A;
+            color: #10B981;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            height: 280px;
+            overflow-y: auto;
+            border: 1px solid #1E293B;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        /* Demand Agg Cards */
+        .demand-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .demand-card .qty {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        /* Audit Timeline */
+        .timeline {
+            padding: 0;
+            list-style: none;
+            margin: 0;
+        }
+
+        .timeline li {
+            padding: 16px 0 16px 36px;
+            border-left: 2px solid var(--border);
+            position: relative;
+        }
+
+        .timeline li:last-child {
+            border-left-color: transparent;
+        }
+
+        .timeline li::before {
+            content: '';
+            position: absolute;
+            left: -7px;
+            top: 22px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--border);
+            border: 3px solid var(--surface);
+        }
+
+        .timeline li.approved::before {
+            background: var(--success);
+        }
+
+        .timeline li.rejected::before {
+            background: var(--danger);
+        }
+
+        .timeline .event-title {
+            font-weight: 500;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timeline .event-time {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 6px;
+        }
+
+        /* Sub Tabs */
+        .sub-tab {
+            padding: 12px 20px;
+            font-weight: 500;
+            color: var(--text-light);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .sub-tab:hover {
+            color: var(--text-dark);
+            background: #F8FAFC;
+        }
+
+        .sub-tab.active {
+            color: var(--accent);
+            border-bottom: 3px solid var(--accent);
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="brand">
+            <div class="brand-icon"><span class="material-symbols-rounded">admin_panel_settings</span></div>
+            <div class="brand-text">UniMaster <small>Command Center</small></div>
+        </div>
+        <div class="nav-item active" onclick="switchView('analytics', this)"><span
+                class="material-symbols-rounded">monitoring</span> National Analytics</div>
+        <div class="nav-item" onclick="switchView('ai', this)"><span class="material-symbols-rounded">psychology</span>
+            AI Match Engine</div>
+        <div class="nav-item" onclick="switchView('approvals', this)"><span
+                class="material-symbols-rounded">fact_check</span> CNMC Approvals</div>
+        <div class="nav-item" onclick="switchView('demand', this)"><span
+                class="material-symbols-rounded">account_balance</span> Demand Aggregation</div>
+        <div class="nav-divider"></div>
+        <div class="nav-item" onclick="switchView('settings', this)"><span class="material-symbols-rounded">tune</span>
+            AI Settings</div>
+        <div class="nav-item" onclick="switchView('auditlogs', this)"><span
+                class="material-symbols-rounded">gavel</span> Audit Logs</div>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h2>Command Center</h2>
+            <div class="user-info">
+                <span class="badge">Ministry Admin</span>
+                <span style="font-weight: 500;">{{ name }}</span>
+                <a href="{{ url_for('auth.logout') }}" class="btn-logout"><span
+                        class="material-symbols-rounded">logout</span> Logout</a>
+            </div>
+        </div>
+
+        <div class="page-content">
+
+            <!-- ═══ ANALYTICS ═══ -->
+            <div id="view-analytics" class="view-section active">
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-icon"><span class="material-symbols-rounded"
+                                style="font-size:28px;">inventory_2</span></div>
+                        <h4>Total Materials</h4>
+                        <div class="val" id="stat-total">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon amber"><span class="material-symbols-rounded"
+                                style="font-size:28px;">pending_actions</span></div>
+                        <h4>Pending Review</h4>
+                        <div class="val" id="stat-pending">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon green"><span class="material-symbols-rounded"
+                                style="font-size:28px;">verified</span></div>
+                        <h4>Approved Codes</h4>
+                        <div class="val" id="stat-approved">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon"><span class="material-symbols-rounded"
+                                style="font-size:28px;">fingerprint</span></div>
+                        <h4>Unique CNMC Codes</h4>
+                        <div class="val" id="stat-unique">0</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+                    <div class="card">
+                        <h3><span class="material-symbols-rounded">bar_chart</span> Materials by CPSE</h3>
+                        <div style="position: relative; height: 250px; width: 100%;">
+                            <canvas id="cpseChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3><span class="material-symbols-rounded">pie_chart</span> Categories</h3>
+                        <div style="position: relative; height: 250px; width: 100%;">
+                            <canvas id="catChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ AI ENGINE ═══ -->
+            <div id="view-ai" class="view-section">
+                <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3><span class="material-symbols-rounded">memory</span> Neural Match Engine</h3>
+                        <p style="margin:0;">Detect functionally equivalent materials across all CPSEs using NLP and
+                            embeddings.</p>
+                    </div>
+                    <button class="btn btn-accent" id="runAiBtn" onclick="runAI()"><span
+                            class="material-symbols-rounded">play_arrow</span> Initialize Engine</button>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="card" id="progressCard" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <h3 style="margin:0;"><span class="material-symbols-rounded">sync</span> Pipeline Progress</h3>
+                        <span id="progressPct" style="font-size:1.5rem; font-weight:700; color:var(--accent);">0%</span>
+                    </div>
+                    <div style="width:100%; background:#E2E8F0; border-radius:8px; height:12px; overflow:hidden;">
+                        <div id="progressBarFill"
+                            style="width:0%; height:100%; background: linear-gradient(90deg, #F59E0B, #10B981); border-radius:8px; transition: width 0.4s ease;">
+                        </div>
+                    </div>
+                    <div id="progressStage"
+                        style="margin-top:12px; font-size:0.85rem; color:var(--text-light); display:flex; align-items:center; gap:6px;">
+                        <span class="material-symbols-rounded" style="font-size:16px;">info</span> Waiting to start...
+                    </div>
+                </div>
+
+                <div class="card" style="padding:0; overflow:hidden;">
+                    <div
+                        style="background:var(--primary); padding:12px 20px; border-bottom:1px solid #1E293B; display:flex; align-items:center; gap:8px;">
+                        <div style="width:12px; height:12px; border-radius:50%; background:#EF4444;"></div>
+                        <div style="width:12px; height:12px; border-radius:50%; background:#F59E0B;"></div>
+                        <div style="width:12px; height:12px; border-radius:50%; background:#10B981;"></div>
+                        <span style="color:#94A3B8; font-size:0.8rem; margin-left:8px; font-family:monospace;">terminal
+                            ~ root@engine</span>
+                    </div>
+                    <div class="terminal" id="terminal-out" style="border-radius:0; border:none; height:300px;">
+                        [SYSTEM]: Ready. Awaiting trigger to analyze MongoDB catalog...</div>
+                </div>
+            </div>
+
+            <!-- ═══ APPROVALS ═══ -->
+            <div id="view-approvals" class="view-section">
+                <div class="card" style="padding:0; overflow:hidden;">
+                    <div style="padding:28px 28px 0;">
+                        <h3 style="margin:0;"><span class="material-symbols-rounded">rule</span> Pending CNMC
+                            Allocations</h3>
+                        <p style="margin:8px 0 20px;">Review AI-generated clusters and approve Common National Material
+                            Codes.</p>
+
+                        <!-- Sub-tabs -->
+                        <div style="display:flex; gap:16px; border-bottom:1px solid var(--border);">
+                            <div id="tab-clustered" class="sub-tab active" onclick="switchApprovalTab('clustered')">
+                                Clustered Matches</div>
+                            <div id="tab-unique" class="sub-tab" onclick="switchApprovalTab('unique')">Unique Materials
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-container" style="border:none; border-radius:0;">
+                        <table id="approvalsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:60px;">S.No.</th>
+                                    <th>Proposed CNMC</th>
+                                    <th>Category</th>
+                                    <th>Specifications (Grouped Items)</th>
+                                    <th style="width:120px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ DEMAND AGGREGATION ═══ -->
+            <div id="view-demand" class="view-section">
+                <div class="card">
+                    <h3><span class="material-symbols-rounded">layers</span> National Demand Aggregation</h3>
+                    <p>Combined procurement quantities submitted by all CPSEs for unified bulk-procurement and strategic
+                        sourcing.</p>
+                    <div class="table-container" style="margin-top: 24px;">
+                        <table id="nationalDemandTable">
+                            <thead>
+                                <tr>
+                                    <th>CNMC Code</th>
+                                    <th>Category</th>
+                                    <th>Total Aggregated Qty</th>
+                                    <th># of CPSEs</th>
+                                    <th>CPSE Breakdown</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <div id="emptyNationalDemand"
+                            style="text-align:center; padding:60px 20px; color:var(--text-light); display:none;">
+                            <span class="material-symbols-rounded"
+                                style="font-size:48px; color:var(--border); margin-bottom:12px;">hourglass_empty</span>
+                            <div>No demands have been submitted by CPSEs yet.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ AUDIT LOGS ═══ -->
+            <div id="view-auditlogs" class="view-section">
+                <div class="card">
+                    <h3><span class="material-symbols-rounded">policy</span> Platform Audit Trail</h3>
+                    <p>Full governance log of all approval and rejection actions taken by administrators.</p>
+                    <ul class="timeline" id="adminTimeline" style="margin-top:24px;">
+                        <li>
+                            <div class="event-title" style="color:var(--text-light);">No audit logs recorded.</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ═══ AI SETTINGS ═══ -->
+            <div id="view-settings" class="view-section">
+                <div class="card"
+                    style="border: 1px solid #E0E7FF; background: linear-gradient(135deg, #F5F3FF 0%, #EEF2FF 100%);">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+                        <div
+                            style="width:48px; height:48px; border-radius:12px; background:linear-gradient(135deg, #6366F1, #8B5CF6); display:flex; align-items:center; justify-content:center;">
+                            <span class="material-symbols-rounded" style="color:white; font-size:24px;">smart_toy</span>
+                        </div>
+                        <div>
+                            <h3 style="margin:0;">AI Auto-Approval Controls</h3>
+                            <p style="margin:4px 0 0; color:var(--text-light); font-size:0.9rem;">Configure AI threshold
+                                for automatic CNMC code approval during engine runs.</p>
+                        </div>
+                    </div>
+
+                    <div
+                        style="background:white; border-radius:12px; padding:24px; box-shadow: var(--shadow-sm); margin-top:8px;">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--border);">
+                            <div>
+                                <h4 style="margin:0; font-size:1rem;">Enable Auto-Approval</h4>
+                                <p style="margin:4px 0 0; font-size:0.85rem; color:var(--text-light);">When enabled,
+                                    clusters with confidence score ≥ threshold will be automatically approved without
+                                    manual review.</p>
+                            </div>
+                            <label
+                                style="position:relative; display:inline-block; width:56px; height:30px; cursor:pointer;">
+                                <input type="checkbox" id="autoApproveToggle" onchange="saveSettings()"
+                                    style="opacity:0; width:0; height:0;">
+                                <span id="toggleSlider"
+                                    style="position:absolute; top:0; left:0; right:0; bottom:0; background:#CBD5E1; border-radius:30px; transition:0.3s;"></span>
+                            </label>
+                        </div>
+
+                        <div style="margin-bottom:24px;">
+                            <div
+                                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                <h4 style="margin:0; font-size:1rem;">Confidence Threshold</h4>
+                                <span id="thresholdValue"
+                                    style="font-size:1.5rem; font-weight:700; color:#6366F1;">95%</span>
+                            </div>
+                            <input type="range" id="thresholdSlider" min="70" max="100" value="95" step="1"
+                                oninput="updateThresholdLabel()" onchange="saveSettings()"
+                                style="width:100%; height:8px; appearance:none; background:linear-gradient(90deg, #EF4444 0%, #F59E0B 40%, #10B981 70%, #6366F1 100%); border-radius:8px; outline:none; cursor:pointer;">
+                            <div
+                                style="display:flex; justify-content:space-between; margin-top:8px; font-size:0.75rem; color:var(--text-light);">
+                                <span>70% (Aggressive)</span>
+                                <span>85% (Balanced)</span>
+                                <span>100% (Manual Only)</span>
+                            </div>
+                        </div>
+
+                        <div
+                            style="background:#F8FAFC; border-radius:8px; padding:16px; border:1px dashed var(--border);">
+                            <h4 style="margin:0 0 8px; font-size:0.9rem;"><span class="material-symbols-rounded"
+                                    style="font-size:16px; vertical-align:middle;">info</span> How it works</h4>
+                            <ul
+                                style="margin:0; padding-left:20px; color:var(--text-light); font-size:0.85rem; line-height:1.8;">
+                                <li><strong>Score ≥ Threshold</strong> → Auto-approved by AI (no manual review needed)
+                                </li>
+                                <li><strong>Score &lt; Threshold</strong> → Stays in "Pending" for manual admin review
+                                </li>
+                                <li>All auto-approvals are logged in the Audit Trail with AI reviewer tag</li>
+                                <li>Set threshold to 100% to disable auto-approval (everything needs manual review)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div id="settingsSaveStatus" style="margin-top:16px; text-align:center; display:none;">
+                        <span class="material-symbols-rounded"
+                            style="color:#10B981; font-size:18px; vertical-align:middle;">check_circle</span>
+                        <span style="color:#10B981; font-weight:600;">Settings saved successfully!</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let cpseChartInst = null;
+        let catChartInst = null;
+        let allClustersData = [];
+        let currentApprovalTab = 'clustered';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchSettings();
+            const hash = window.location.hash.replace('#', '');
+            if (hash) {
+                switchViewByName(hash);
+            } else {
+                fetchAnalytics();
+                fetchApprovals();
+            }
+        });
+
+        function switchViewByName(viewName) {
+            const el = document.querySelector(`.nav-item[onclick*="switchView('${viewName}'"]`);
+            if (el) {
+                switchView(viewName, el);
+            } else {
+                switchView(viewName, null);
+            }
+        }
+
+        function switchView(viewName, element) {
+            history.replaceState(null, null, '#' + viewName);
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-' + viewName).classList.add('active');
+            if (element) {
+                element.classList.add('active');
+            }
+
+            if (viewName === 'analytics') fetchAnalytics();
+            if (viewName === 'approvals') fetchApprovals();
+            if (viewName === 'demand') fetchDemand();
+            if (viewName === 'settings') fetchSettings();
+            if (viewName === 'auditlogs') fetchAuditLogs();
+        }
+
+        async function fetchAnalytics() {
+            try {
+                const res = await fetch('/api/analytics');
+                const data = await res.json();
+                document.getElementById('stat-total').innerText = data.total_materials;
+                document.getElementById('stat-pending').innerText = data.pending_clusters;
+                document.getElementById('stat-approved').innerText = data.approved_clusters;
+                document.getElementById('stat-unique').innerText = data.total_clusters;
+                renderCharts(data);
+            } catch (err) { console.error(err); }
+        }
+
+        function renderCharts(data) {
+            if (cpseChartInst) cpseChartInst.destroy();
+            if (catChartInst) catChartInst.destroy();
+            Chart.defaults.font.family = 'Inter'; Chart.defaults.color = '#64748B';
+
+            cpseChartInst = new Chart(document.getElementById('cpseChart'), {
+                type: 'bar',
+                data: { labels: Object.keys(data.cpse_material_counts || {}), datasets: [{ label: 'Ingested Items', data: Object.values(data.cpse_material_counts || {}), backgroundColor: '#F59E0B', borderRadius: 6 }] },
+                options: { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { display: false } } }, maintainAspectRatio: false }
+            });
+
+            catChartInst = new Chart(document.getElementById('catChart'), {
+                type: 'doughnut',
+                data: { labels: Object.keys(data.category_breakdown || {}), datasets: [{ data: Object.values(data.category_breakdown || {}), backgroundColor: ['#0F172A', '#334155', '#64748B', '#94A3B8', '#CBD5E1'], borderWidth: 0 }] },
+                options: { cutout: '65%', plugins: { legend: { position: 'right' } }, maintainAspectRatio: false }
+            });
+        }
+
+        async function runAI() {
+            const btn = document.getElementById('runAiBtn');
+            const term = document.getElementById('terminal-out');
+            const progressCard = document.getElementById('progressCard');
+            const progressBar = document.getElementById('progressBarFill');
+            const progressPct = document.getElementById('progressPct');
+            const progressStage = document.getElementById('progressStage');
+
+            btn.disabled = true;
+            btn.innerHTML = `<span class="material-symbols-rounded" style="animation: spin 2s linear infinite;">sync</span> Running...`;
+            progressCard.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressPct.innerText = '0%';
+
+            term.innerHTML += `<br><span style="color:#F59E0B">[INFO]</span> Starting AI Match Pipeline...`;
+
+            const stageIcons = {
+                fetch: 'database', preprocess: 'text_fields', attributes: 'science',
+                vectorize: 'hub', matching: 'compare_arrows', clustering: 'workspaces',
+                cnmc: 'badge', store: 'cloud_upload', complete: 'check_circle', error: 'error'
+            };
+
+            const eventSource = new EventSource('/api/match');
+
+            eventSource.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+
+                // Update progress bar
+                progressBar.style.width = data.progress + '%';
+                progressPct.innerText = data.progress + '%';
+
+                if (data.progress >= 100) {
+                    progressBar.style.background = 'linear-gradient(90deg, #10B981, #059669)';
+                }
+
+                // Update stage label
+                const icon = stageIcons[data.stage] || 'info';
+                progressStage.innerHTML = `<span class="material-symbols-rounded" style="font-size:16px;">${icon}</span> ${data.message || data.stage}`;
+
+                // Terminal log
+                const color = data.stage === 'error' ? '#EF4444' : data.stage === 'complete' || data.stage === 'done' ? '#10B981' : '#F59E0B';
+                if (data.message) {
+                    term.innerHTML += `<br><span style="color:${color}">[${data.stage.toUpperCase()}]</span> ${data.message}`;
+                }
+                term.scrollTop = term.scrollHeight;
+
+                // If done, close connection and update button
+                if (data.stage === 'done') {
+                    eventSource.close();
+                    btn.innerHTML = `<span class="material-symbols-rounded">replay</span> Re-Run Engine`;
+                    btn.disabled = false;
+                    term.innerHTML += `<br><br>> <span style="color:#10B981; font-weight:bold;">✓ ${data.total_items} items → ${data.total_matches} pairs → ${data.total_clusters} clusters</span>`;
+                    term.scrollTop = term.scrollHeight;
+                    fetchAnalytics();
+                }
+
+                if (data.stage === 'error') {
+                    eventSource.close();
+                    btn.innerHTML = `<span class="material-symbols-rounded">play_arrow</span> Initialize Engine`;
+                    btn.disabled = false;
+                    progressBar.style.background = '#EF4444';
+                }
+            };
+
+            eventSource.onerror = function () {
+                eventSource.close();
+                term.innerHTML += `<br><span style="color:#EF4444">[ERROR]</span> Connection lost. Check server logs.`;
+                btn.innerHTML = `<span class="material-symbols-rounded">play_arrow</span> Initialize Engine`;
+                btn.disabled = false;
+            };
+        }
+
+        async function fetchApprovals() {
+            try {
+                const res = await fetch('/api/recommendations');
+                const data = await res.json();
+                allClustersData = data.clusters || [];
+                renderApprovals();
+            } catch (err) { console.error(err); }
+        }
+
+        function switchApprovalTab(tabName) {
+            currentApprovalTab = tabName;
+            document.querySelectorAll('.sub-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            renderApprovals();
+        }
+
+        function renderApprovals() {
+            const tbody = document.querySelector('#approvalsTable tbody');
+            tbody.innerHTML = '';
+
+            let filteredClusters = allClustersData;
+            if (currentApprovalTab === 'clustered') {
+                filteredClusters = allClustersData.filter(c => c.members.length > 1);
+            } else {
+                filteredClusters = allClustersData.filter(c => c.members.length === 1);
+            }
+            // Sort: pending first, then approved, then rejected
+            filteredClusters.sort((a, b) => {
+                const order = { 'pending': 0, 'approved': 1, 'rejected': 2 };
+                return (order[a.status] || 3) - (order[b.status] || 3);
+            });
+
+            if (filteredClusters.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:60px 20px; color:var(--text-light);"><span class="material-symbols-rounded" style="font-size:48px; color:var(--border); margin-bottom:12px;">task</span><div>No items in this category.</div></td></tr>';
+                return;
+            }
+
+            filteredClusters.forEach((c, index) => {
+                const tr = document.createElement('tr');
+                let membersHtml = `<div style="display:flex; flex-direction:column; gap:8px;">`;
+                c.members.forEach(m => {
+                    membersHtml += `<div style="background:#F8FAFC; padding:10px 14px; border-radius:8px; border:1px solid var(--border); font-size:0.85rem;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                            <span style="color:var(--text-dark); font-weight:600; background:var(--surface); padding:2px 8px; border-radius:4px; border:1px solid var(--border); font-size:0.75rem;">${m.cpse}</span>
+                            <span style="font-family:monospace; color:var(--text-light); font-weight:600;">${m.local_code}</span>
+                        </div>
+                        <div style="color:var(--text-dark); margin-bottom:6px; font-weight:500;">${m.description}</div>
+                        <div style="display:flex; gap:12px; color:var(--text-light); font-size:0.75rem;">
+                            <span><span class="material-symbols-rounded" style="font-size:14px; vertical-align:middle;">straighten</span> UOM: <strong>${m.uom || 'N/A'}</strong></span>
+                            <span><span class="material-symbols-rounded" style="font-size:14px; vertical-align:middle;">inventory</span> Qty: <strong>${m.qty || 'N/A'}</strong></span>
+                        </div>
+                    </div>`;
+                });
+                membersHtml += `</div>`;
+
+                let actionHtml = '';
+                if (c.status === 'pending') {
+                    actionHtml = `<div style="display:flex; gap:8px;">
+                        <button class="btn-approve" title="Approve" onclick="approveCluster('${c.cnmc_code}', 'approve')" style="padding:6px 10px; border-radius:8px;"><span class="material-symbols-rounded" style="font-size:20px;">check</span></button>
+                        <button class="btn-reject" title="Reject" onclick="approveCluster('${c.cnmc_code}', 'reject')" style="padding:6px 10px; border-radius:8px; margin-left:0;"><span class="material-symbols-rounded" style="font-size:20px;">close</span></button>
+                    </div>`;
+                } else {
+                    const col = c.status === 'approved' ? 'var(--success)' : 'var(--danger)';
+                    const icon = c.status === 'approved' ? 'verified' : 'cancel';
+                    actionHtml = `<span style="color:${col}; font-weight:600; text-transform:uppercase; display:flex; align-items:center; gap:4px;"><span class="material-symbols-rounded" style="font-size:18px;">${icon}</span> ${c.status}</span>`;
+                }
+
+                let confColor = c.confidence_score >= 85 ? 'var(--success)' : (c.confidence_score >= 70 ? '#F59E0B' : '#EF4444');
+                let confBadge = `<div style="margin-top:12px; font-size:0.75rem; font-weight:600; color:${confColor};"><span class="material-symbols-rounded" style="font-size:14px; vertical-align:middle;">analytics</span> Match: ${c.confidence_score || 100}%</div>`;
+
+                tr.innerHTML = `
+                    <td style="font-weight:600; color:var(--text-light);">${index + 1}</td>
+                    <td><span class="code-badge">${c.cnmc_code}</span></td>
+                    <td>
+                        <span style="background:var(--accent-light); color:#B45309; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:600;">${c.category}</span>
+                        ${c.members.length > 1 ? confBadge : ''}
+                    </td>
+                    <td>${membersHtml}</td>
+                    <td>${actionHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function approveCluster(code, action) {
+            try {
+                await fetch('/api/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cnmc_code: code, action: action }) });
+                fetchApprovals(); fetchAnalytics();
+            } catch (err) { alert("Action failed."); }
+        }
+
+        async function fetchDemand() {
+            try {
+                const res = await fetch('/api/national-demand');
+                const data = await res.json();
+
+                const tbody = document.querySelector('#nationalDemandTable tbody');
+                const emptyMsg = document.getElementById('emptyNationalDemand');
+                const table = document.querySelector('#nationalDemandTable');
+
+                tbody.innerHTML = '';
+
+                if (!data || data.length === 0) {
+                    emptyMsg.style.display = 'block';
+                    table.style.display = 'none';
+                    return;
+                }
+
+                emptyMsg.style.display = 'none';
+                table.style.display = 'table';
+
+                data.forEach(item => {
+                    let breakdownHtml = '<ul style="list-style-type:none; padding:0; margin:0; font-size:0.85rem; color:var(--text-light);">';
+                    item.details.forEach(d => {
+                        breakdownHtml += `<li style="margin-bottom:4px;"><strong style="color:var(--text-dark);">${d.cpse}:</strong> ${d.quantity} units (Target: ${d.date || 'N/A'})</li>`;
+                    });
+                    breakdownHtml += '</ul>';
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><span class="code-badge">${item.cnmc_code}</span></td>
+                        <td>${item.category}</td>
+                        <td><strong style="color:var(--text-dark); font-size:1.1rem;">${item.total_quantity}</strong></td>
+                        <td>${item.cpse_count}</td>
+                        <td>${breakdownHtml}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        async function fetchAuditLogs() {
+            try {
+                const res = await fetch('/api/audit-logs');
+                const data = await res.json();
+                const timeline = document.getElementById('adminTimeline');
+
+                if (!data.length) {
+                    timeline.innerHTML = '<li><div class="event-title" style="color:var(--text-light);">No audit logs recorded.</div></li>';
+                    return;
+                }
+
+                timeline.innerHTML = '';
+                data.forEach(log => {
+                    const icon = log.action === 'approve' ? 'verified' : 'cancel';
+                    const cls = log.action === 'approve' ? 'approved' : 'rejected';
+                    const ts = log.timestamp ? new Date(log.timestamp).toLocaleString() : '';
+                    timeline.innerHTML += `
+                        <li class="${cls}">
+                            <div class="event-title"><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-light);">${icon}</span> <span><strong>${log.cnmc_code}</strong> was <strong>${log.action}d</strong> by ${log.reviewer}</span></div>
+                            <div class="event-time">${ts}</div>
+                        </li>
+                    `;
+                });
+            } catch (err) { console.error(err); }
+        }
+        async function fetchSettings() {
+            try {
+                const res = await fetch('/api/settings');
+                const data = await res.json();
+
+                const toggle = document.getElementById('autoApproveToggle');
+                const slider = document.getElementById('thresholdSlider');
+
+                toggle.checked = data.auto_approve_enabled || false;
+                slider.value = data.auto_approve_threshold || 95;
+                updateThresholdLabel();
+                updateToggleVisual();
+            } catch (e) { console.error(e); }
+        }
+
+        function updateThresholdLabel() {
+            const val = document.getElementById('thresholdSlider').value;
+            document.getElementById('thresholdValue').innerText = val + '%';
+        }
+
+        function updateToggleVisual() {
+            const toggle = document.getElementById('autoApproveToggle');
+            const slider = document.getElementById('toggleSlider');
+            if (toggle.checked) {
+                slider.style.background = '#6366F1';
+                slider.innerHTML = '<span style="position:absolute; right:4px; top:3px; width:24px; height:24px; background:white; border-radius:50%; transition:0.3s;"></span>';
+            } else {
+                slider.style.background = '#CBD5E1';
+                slider.innerHTML = '<span style="position:absolute; left:4px; top:3px; width:24px; height:24px; background:white; border-radius:50%; transition:0.3s;"></span>';
+            }
+        }
+
+        async function saveSettings() {
+            updateToggleVisual();
+            const enabled = document.getElementById('autoApproveToggle').checked;
+            const threshold = parseInt(document.getElementById('thresholdSlider').value);
+
+            try {
+                await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        auto_approve_enabled: enabled,
+                        auto_approve_threshold: threshold
+                    })
+                });
+
+                const status = document.getElementById('settingsSaveStatus');
+                status.style.display = 'block';
+                setTimeout(() => { status.style.display = 'none'; }, 2500);
+            } catch (e) { alert('Failed to save settings.'); }
+        }
+    </script>
+    <style>
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #thresholdSlider::-webkit-slider-thumb {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border: 3px solid #6366F1;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        #thresholdSlider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: white;
+            border: 3px solid #6366F1;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
+</body>
+
+</html>

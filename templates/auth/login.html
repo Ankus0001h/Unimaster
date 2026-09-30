@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1280">
+    <title>Login | UniMaster</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            height: 100vh;
+            background: #F8FAFC;
+        }
+
+        .login-left {
+            flex: 1;
+            background: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070') center/cover;
+            position: relative;
+            display: none;
+        }
+
+        @media (min-width: 900px) {
+            .login-left {
+                display: block;
+            }
+        }
+
+        .login-left::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.7));
+        }
+
+        .login-content {
+            position: relative;
+            z-index: 1;
+            color: white;
+            padding: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .login-content h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .login-content p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            max-width: 400px;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .login-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            padding: 20px;
+        }
+
+        .login-form-box {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0F172A;
+            margin-bottom: 40px;
+        }
+
+        .brand-icon {
+            background: #0F172A;
+            color: white;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .login-form-box h2 {
+            font-size: 2rem;
+            color: #0F172A;
+            margin: 0 0 10px;
+        }
+
+        .login-form-box p {
+            color: #64748B;
+            margin: 0 0 30px;
+            font-size: 0.95rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: #334155;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #CBD5E1;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+            box-sizing: border-box;
+            background: #F8FAFC;
+        }
+
+        .input-group input:focus {
+            border-color: #2563EB;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: #0F172A;
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background: #1E293B;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-msg {
+            color: #DC2626;
+            background: #FEF2F2;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid #FCA5A5;
+        }
+
+        /* Autofill Section */
+        .autofill-section {
+            margin-top: 35px;
+            border-top: 1px solid #E2E8F0;
+            padding-top: 25px;
+        }
+
+        .autofill-section p {
+            font-size: 0.85rem;
+            color: #94A3B8;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .autofill-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-autofill {
+            flex: 1;
+            background: white;
+            border: 1px solid #CBD5E1;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-autofill:hover {
+            background: #F1F5F9;
+            border-color: #94A3B8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-left">
+        <div class="login-content">
+            <h1>Harmonizing<br>Enterprise Data.</h1>
+            <p>Access your centralized dashboard to map legacy material codes or manage national duplicate detection
+                workflows.</p>
+        </div>
+    </div>
+    <div class="login-right">
+        <div class="login-form-box">
+
+            <div class="brand">
+                <div class="brand-icon">⎔</div>
+                UniMaster
+            </div>
+
+            <h2>Welcome back</h2>
+            <p>Please enter your credentials to securely sign in.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="error-msg">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('auth.login') }}">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required placeholder="Enter your username">
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-submit">Sign in</button>
+            </form>
+
+            <!-- Quick Login Options -->
+            <div class="autofill-section">
+                <p>Quick Demo Access (Select Persona)</p>
+                <div class="autofill-buttons">
+                    <button type="button" class="btn-autofill" onclick="fillCredentials('ongc_user', 'password123')"
+                        title="ONGC">
+                        ⛽ ONGC
+                    </button>
+                    <button type="button" class="btn-autofill" onclick="fillCredentials('ntpc_user', 'password123')"
+                        title="NTPC">
+                        ⚡ NTPC
+                    </button>
+                    <button type="button" class="btn-autofill" onclick="fillCredentials('sail_user', 'password123')"
+                        title="SAIL">
+                        🏗️ SAIL
+                    </button>
+                    <button type="button" class="btn-autofill" onclick="fillCredentials('coal_user', 'password123')"
+                        title="Coal India">
+                        ⛏️ COAL
+                    </button>
+                </div>
+                <div class="autofill-buttons" style="margin-top: 10px;">
+                    <button type="button" class="btn-autofill" onclick="fillCredentials('admin_user', 'admin123')"
+                        style="background: #FFFBEB; border-color: #FCD34D;">
+                        🛡️ Login as Ministry Admin
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function fillCredentials(user, pass) {
+            const userField = document.getElementById('username');
+            const passField = document.getElementById('password');
+
+            // Add a quick visual flash to show it worked
+            userField.style.transition = 'none';
+            passField.style.transition = 'none';
+            userField.style.backgroundColor = '#E0F2FE';
+            passField.style.backgroundColor = '#E0F2FE';
+
+            userField.value = user;
+            passField.value = pass;
+
+            setTimeout(() => {
+                userField.style.transition = 'background 0.3s ease';
+                passField.style.transition = 'background 0.3s ease';
+                userField.style.backgroundColor = '#F8FAFC';
+                passField.style.backgroundColor = '#F8FAFC';
+            }, 100);
+        }
+    </script>
+</body>
+
+</html>

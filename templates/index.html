@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1280">
+    <meta name="description"
+        content="National Unified Material Master Platform — AI-powered material code normalization, duplicate detection, and cross-CPSE inventory management for Government of India CPSEs.">
+    <title>National Unified Material Master Platform | Government of India</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/gov_style.css') }}">
+</head>
+
+<body>
+
+    <!-- ═══ TOP GOVERNMENT HEADER ═══════════════════════════════════════ -->
+    <header class="gov-topbar">
+        <div class="gov-topbar-inner">
+            <div class="gov-brand">
+                <div class="gov-emblem">🏛</div>
+                <div class="gov-title-group">
+                    <div class="gov-title">National Unified Material Master Platform</div>
+                    <div class="gov-subtitle">Government of India · Ministry of Heavy Industries · Digital India
+                        Initiative</div>
+                </div>
+            </div>
+            <div class="gov-role-selector">
+                <label for="roleSelector">Access Role</label>
+                <select id="roleSelector" class="gov-role-dropdown">
+                    <option value="cpse_user">CPSE User</option>
+                    <option value="super_admin">Super Admin (Ministry)</option>
+                </select>
+            </div>
+        </div>
+        <div class="gov-tricolor-strip">
+            <div class="saffron-strip"></div>
+            <div class="white-strip"></div>
+            <div class="green-strip"></div>
+        </div>
+    </header>
+
+    <!-- ═══ TAB NAVIGATION ══════════════════════════════════════════════ -->
+    <nav class="tab-nav-container">
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="tab-ingest" id="tabBtn-ingest">
+                <span class="tab-icon">📥</span>
+                Data Ingestion & Extraction
+                <span class="tab-badge" id="badge-tab1">0</span>
+            </button>
+            <button class="tab-btn" data-tab="tab-match" id="tabBtn-match">
+                <span class="tab-icon">🤖</span>
+                AI Matching & Approval
+                <span class="tab-badge" id="badge-tab2">0</span>
+            </button>
+            <button class="tab-btn" data-tab="tab-search" id="tabBtn-search">
+                <span class="tab-icon">🔍</span>
+                Unified Search & Inventory
+            </button>
+            <button class="tab-btn" data-tab="tab-analytics" id="tabBtn-analytics">
+                <span class="tab-icon">📊</span>
+                Analytics & Demand Aggregation
+            </button>
+        </div>
+    </nav>
+
+    <!-- ═══ TAB CONTENT ═════════════════════════════════════════════════ -->
+    <main class="tab-content-wrapper">
+
+        <!-- ─── TAB 1: DATA INGESTION ─────────────────────────────────── -->
+        <section class="tab-pane active" id="tab-ingest">
+            <div class="section-header">
+                <div class="section-icon">📥</div>
+                <h2>Data Ingestion & Smart Column Auto-Segregation</h2>
+            </div>
+            <p class="section-desc">
+                Upload material master CSV/Excel files from any CPSE. The AI engine will auto-detect and map column
+                headers
+                to the standard national schema, then stream extracted data in real-time.
+            </p>
+
+            <!-- File Drop Zone -->
+            <div class="dropzone" id="dropzone">
+                <input type="file" id="fileInput" accept=".csv,.xlsx,.xls">
+                <span class="dropzone-icon">📁</span>
+                <div class="dropzone-text">Drag & Drop your CSV / Excel file here</div>
+                <div class="dropzone-hint">or click to browse · Supports .csv, .xlsx, .xls · Max 50 MB</div>
+            </div>
+
+            <div class="template-download-row">
+                <a href="/api/download-template" class="template-link" id="downloadTemplate">
+                    ⬇ Download Standard Template (CSV)
+                </a>
+            </div>
+
+            <!-- Terminal Extraction Window -->
+            <div class="terminal-window" id="extractionTerminal">
+                <div class="terminal-titlebar">
+                    <span class="terminal-dot red"></span>
+                    <span class="terminal-dot yellow"></span>
+                    <span class="terminal-dot green"></span>
+                    <span>AI Extraction Engine — Live Output</span>
+                </div>
+                <div class="terminal-body"></div>
+            </div>
+
+            <!-- Extracted Data Table (dynamically filled) -->
+            <div id="extractedDataContainer" style="margin-top: 24px;"></div>
+        </section>
+
+        <!-- ─── TAB 2: AI MATCHING & APPROVAL ─────────────────────────── -->
+        <section class="tab-pane" id="tab-match">
+            <div class="section-header">
+                <div class="section-icon">🤖</div>
+                <h2>AI Duplicate Matching & National Code Approval</h2>
+            </div>
+            <p class="section-desc">
+                Run the multi-layer AI pipeline (TF-IDF + Semantic + Attribute + Fuzzy matching) on uploaded data.
+                Review AI-discovered duplicates with confidence scores, and approve/reject proposed CNMC codes.
+            </p>
+
+            <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;align-items:center">
+                <button class="btn btn-saffron" id="runMatchBtn">
+                    ⚡ Run AI Matching Pipeline
+                </button>
+                <span style="color:var(--text-muted);font-size:0.85rem">
+                    Formula: Score = (0.6 × Semantic) + (0.3 × Attribute) + (0.1 × Fuzzy)
+                </span>
+            </div>
+
+            <div id="matchResultsContainer">
+                <div class="empty-state">
+                    <span class="empty-icon">🧠</span>
+                    <h3>No Matching Results Yet</h3>
+                    <p>Upload data in Tab 1, then click "Run AI Matching Pipeline" to discover duplicates across CPSEs.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── TAB 3: UNIFIED SEARCH & INVENTORY ─────────────────────── -->
+        <section class="tab-pane" id="tab-search">
+            <div class="section-header">
+                <div class="section-icon">🔍</div>
+                <h2>Unified Material Search & Cross-CPSE Inventory</h2>
+            </div>
+            <p class="section-desc">
+                Search by CNMC code, local CPSE material code, or description text to view stock availability
+                across all participating Central Public Sector Enterprises.
+            </p>
+
+            <div class="search-bar">
+                <input type="text" class="search-input" id="searchQuery"
+                    placeholder="Enter CNMC code, local code, or material description...">
+                <select class="search-select" id="searchType">
+                    <option value="description">Search by Description</option>
+                    <option value="cnmc">Search by CNMC Code</option>
+                    <option value="local_code">Search by Local Code</option>
+                </select>
+                <button class="btn btn-primary" id="searchBtn">🔍 Search</button>
+            </div>
+
+            <div id="searchResultsContainer">
+                <div class="empty-state">
+                    <span class="empty-icon">🏭</span>
+                    <h3>Search the National Material Catalog</h3>
+                    <p>Enter a query above to find materials across all CPSEs. Upload data first to populate the
+                        catalog.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── TAB 4: ANALYTICS & DEMAND AGGREGATION ─────────────────── -->
+        <section class="tab-pane" id="tab-analytics">
+            <div class="section-header">
+                <div class="section-icon">📊</div>
+                <h2>National Analytics & Demand Aggregation</h2>
+            </div>
+            <p class="section-desc">
+                Real-time analytics computed dynamically from uploaded data — no hardcoded metrics.
+                View duplicate reduction, stock savings, category distribution, and aggregated bulk demand.
+            </p>
+
+            <div style="margin-bottom:20px">
+                <button class="btn btn-primary" id="refreshAnalyticsBtn">🔄 Refresh Analytics</button>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon navy">📦</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="statTotalMaterials">0</div>
+                        <div class="stat-label">Total Materials Ingested</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon saffron">🏢</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="statTotalCPSEs">0</div>
+                        <div class="stat-label">Participating CPSEs</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">🔗</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="statTotalClusters">0</div>
+                        <div class="stat-label">National Clusters</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">✅</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="statApproved">0</div>
+                        <div class="stat-label">Approved Codes</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">🔁</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="statDuplicatePairs">0</div>
+                        <div class="stat-label">Duplicate Pairs Found</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">📉</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="statDupReduced">0%</div>
+                        <div class="stat-label">Duplication Reduction</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-title">📊 Materials per CPSE</div>
+                    <div id="cpseMaterialChart">
+                        <div class="empty-state" style="padding:30px">
+                            <span class="empty-icon">📊</span>
+                            <p>Upload data to see CPSE distribution.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">📦 Clusters by Category</div>
+                    <div id="categoryChart">
+                        <div class="empty-state" style="padding:30px">
+                            <span class="empty-icon">📦</span>
+                            <p>Run matching to see category breakdown.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">✅ Approval Status</div>
+                    <div id="approvalRing">
+                        <div class="empty-state" style="padding:30px">
+                            <span class="empty-icon">✅</span>
+                            <p>No clusters to track yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demand Aggregation Table -->
+            <div style="margin-top:32px">
+                <div class="section-header">
+                    <div class="section-icon">🏗</div>
+                    <h2>Demand Aggregation — Bulk Procurement View</h2>
+                </div>
+                <div id="demandAggregationContainer">
+                    <div class="empty-state">
+                        <span class="empty-icon">🏗</span>
+                        <h3>No Aggregated Demand Yet</h3>
+                        <p>Once clusters are approved, aggregated demand across CPSEs will appear here for bulk
+                            procurement planning.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ═══ FOOTER ══════════════════════════════════════════════════════ -->
+    <footer class="gov-footer">
+        National Unified Material Master Platform &middot; Government of India &middot; Ministry of Heavy Industries<br>
+        Designed in compliance with <a href="#">Digital India</a> & NIC Design Standards &middot; All data processed
+        dynamically
+    </footer>
+
+    <!-- ═══ LOADING OVERLAY ═════════════════════════════════════════════ -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-box">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <!-- ═══ TOAST CONTAINER ═════════════════════════════════════════════ -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ═══ SCRIPTS ═════════════════════════════════════════════════════ -->
+    <script src="{{ url_for('static', filename='js/streaming.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>
