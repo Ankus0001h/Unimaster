@@ -382,8 +382,8 @@ def run_matching():
             combined = f"{desc} {spec}".strip()
             raw_texts.append(combined if combined else str(r.get("local_material_code", "")))
 
-        if len(raw_texts) < 2:
-            yield send(100, "error", "Need at least 2 records for matching.")
+        if len(raw_texts) == 0:
+            yield send(100, "error", "No records found.")
             return
 
         yield send(20, "preprocess", f"Pre-processing {len(raw_texts)} text descriptions...")
@@ -396,22 +396,27 @@ def run_matching():
         attributes = extract_attributes_batch(raw_texts)
         yield send(45, "attributes", f"Extracted attributes for {len(attributes)} items.")
 
-        yield send(50, "vectorize", "Building TF-IDF + Semantic vector space...")
-        time.sleep(0.3)
-        vectorizer = HybridVectorizer()
-        vectorizer.fit(processed)
-        yield send(60, "vectorize", "Hybrid vectorizer fitted successfully.")
+        if len(raw_texts) == 1:
+            yield send(60, "vectorize", "Only 1 item found. Skipping similarity matching.")
+            matches = []
+            clusters = [{"member_indices": [0], "metadata": {}}]
+        else:
+            yield send(50, "vectorize", "Building TF-IDF + Semantic vector space...")
+            time.sleep(0.3)
+            vectorizer = HybridVectorizer()
+            vectorizer.fit(processed)
+            yield send(60, "vectorize", "Hybrid vectorizer fitted successfully.")
 
-        yield send(65, "matching", "Running pairwise similarity matching...")
-        time.sleep(0.2)
-        matcher = MaterialMatcher(vectorizer)
-        matches = matcher.find_matches(raw_texts, processed, attributes, MATCH_THRESHOLD)
-        yield send(75, "matching", f"Found {len(matches)} duplicate pairs.")
+            yield send(65, "matching", "Running pairwise similarity matching...")
+            time.sleep(0.2)
+            matcher = MaterialMatcher(vectorizer)
+            matches = matcher.find_matches(raw_texts, processed, attributes, MATCH_THRESHOLD)
+            yield send(75, "matching", f"Found {len(matches)} duplicate pairs.")
 
-        yield send(80, "clustering", "Clustering matched items into CNMC groups...")
-        time.sleep(0.2)
-        clusters = matcher.cluster_materials(raw_texts, processed, attributes, MATCH_THRESHOLD)
-        yield send(85, "clustering", f"Formed {len(clusters)} clusters.")
+            yield send(80, "clustering", "Clustering matched items into CNMC groups...")
+            time.sleep(0.2)
+            clusters = matcher.cluster_materials(raw_texts, processed, attributes, MATCH_THRESHOLD)
+            yield send(85, "clustering", f"Formed {len(clusters)} clusters.")
 
         yield send(88, "cnmc", "Generating Common National Material Codes...")
         time.sleep(0.2)
@@ -1002,5 +1007,7 @@ def get_national_demand():
 # ══════════════════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    import os
+    port = int(os.environ.get("PORT", 7860))
+    app.run(host="0.0.0.0", port=port)
 
