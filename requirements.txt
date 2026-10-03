@@ -1,25 +1,12 @@
-# ══════════════════════════════════════════════════════════════════════
-# UniMaster — National Unified Material Master Platform
-# Python Dependencies
-# ══════════════════════════════════════════════════════════════════════
-
-# Web Framework
-Flask==3.0.3
-Werkzeug==3.0.3
-
-# Data Processing
-pandas==2.2.2
-numpy==1.26.4
-openpyxl==3.1.5
-
-# AI / NLP Engine
-scikit-learn==1.5.1
-sentence-transformers==3.0.1
-rapidfuzz==3.9.4
-
-# Database
-pymongo==4.7.3
-
-# Utilities
-python-dotenv==1.0.1
-python-dateutil==2.9.0
+Flask
+Werkzeug
+pandas
+numpy
+openpyxl
+scikit-learn
+sentence-transformers
+rapidfuzz
+pymongo
+python-dotenv
+python-dateutil
+gunicorn
