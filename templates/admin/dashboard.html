@@ -560,6 +560,8 @@
                 class="material-symbols-rounded">fact_check</span> CNMC Approvals</div>
         <div class="nav-item" onclick="switchView('demand', this)"><span
                 class="material-symbols-rounded">account_balance</span> Demand Aggregation</div>
+        <div class="nav-item" onclick="switchView('inventory', this)"><span
+                class="material-symbols-rounded">warehouse</span> Inventory Overview</div>
         <div class="nav-divider"></div>
         <div class="nav-item" onclick="switchView('settings', this)"><span class="material-symbols-rounded">tune</span>
             AI Settings</div>
@@ -731,6 +733,55 @@
                 </div>
             </div>
 
+            <!-- ═══ INVENTORY OVERVIEW ═══ -->
+            <div id="view-inventory" class="view-section">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <div>
+                            <h3 style="margin:0;"><span class="material-symbols-rounded">warehouse</span> National Inventory Overview</h3>
+                            <p style="margin:8px 0 0;">Combined and individual CPSE-wise stock quantities for each approved CNMC item.</p>
+                        </div>
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <input type="text" id="inventorySearch" placeholder="Search CNMC, description, or CPSE..." oninput="filterInventory()" style="padding:10px 16px; border:1px solid var(--border); border-radius:10px; font-size:0.9rem; width:300px; font-family:Inter; outline:none; transition:border 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; margin-bottom:24px;">
+                        <div style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7); border:1px solid #BBF7D0; border-radius:12px; padding:20px;">
+                            <div style="font-size:0.8rem; color:#166534; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Total CNMC Items</div>
+                            <div id="inv-total-items" style="font-size:2rem; font-weight:700; color:#15803D; margin-top:4px;">0</div>
+                        </div>
+                        <div style="background:linear-gradient(135deg,#FFFBEB,#FEF3C7); border:1px solid #FDE68A; border-radius:12px; padding:20px;">
+                            <div style="font-size:0.8rem; color:#92400E; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Total Combined Stock</div>
+                            <div id="inv-total-qty" style="font-size:2rem; font-weight:700; color:#B45309; margin-top:4px;">0</div>
+                        </div>
+                        <div style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE); border:1px solid #BFDBFE; border-radius:12px; padding:20px;">
+                            <div style="font-size:0.8rem; color:#1E40AF; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">CPSEs Contributing</div>
+                            <div id="inv-total-cpses" style="font-size:2rem; font-weight:700; color:#1D4ED8; margin-top:4px;">0</div>
+                        </div>
+                    </div>
+                    <div class="table-container" style="margin-top:0;">
+                        <table id="inventoryTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:50px;">S.No.</th>
+                                    <th>CNMC Code</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>UOM</th>
+                                    <th style="text-align:right;">Combined Qty</th>
+                                    <th>CPSE-wise Breakdown</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <div id="emptyInventory" style="text-align:center; padding:60px 20px; color:var(--text-light); display:none;">
+                            <span class="material-symbols-rounded" style="font-size:48px; color:var(--border); margin-bottom:12px;">inventory_2</span>
+                            <div>No approved CNMC items found. Run the AI engine and approve clusters first.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- ═══ AUDIT LOGS ═══ -->
             <div id="view-auditlogs" class="view-section">
                 <div class="card">
@@ -882,6 +933,7 @@
             if (viewName === 'analytics') fetchAnalytics();
             if (viewName === 'approvals') fetchApprovals();
             if (viewName === 'demand') fetchDemand();
+            if (viewName === 'inventory') fetchInventory();
             if (viewName === 'settings') fetchSettings();
             if (viewName === 'auditlogs') fetchAuditLogs();
         }
@@ -1117,6 +1169,105 @@
                     tbody.appendChild(tr);
                 });
             } catch (err) { console.error(err); }
+        }
+
+        let inventoryData = [];
+
+        async function fetchInventory() {
+            try {
+                const res = await fetch('/api/inventory-overview');
+                const data = await res.json();
+                inventoryData = data.overview || [];
+
+                const tbody = document.querySelector('#inventoryTable tbody');
+                const emptyMsg = document.getElementById('emptyInventory');
+                const table = document.getElementById('inventoryTable');
+
+                // Stats
+                document.getElementById('inv-total-items').innerText = data.total_items || 0;
+                let totalQty = 0;
+                let allCpses = new Set();
+                inventoryData.forEach(item => {
+                    totalQty += item.total_quantity;
+                    item.cpse_breakdown.forEach(c => allCpses.add(c.cpse));
+                });
+                document.getElementById('inv-total-qty').innerText = totalQty.toLocaleString();
+                document.getElementById('inv-total-cpses').innerText = allCpses.size;
+
+                renderInventoryTable(inventoryData);
+            } catch (err) { console.error(err); }
+        }
+
+        function renderInventoryTable(items) {
+            const tbody = document.querySelector('#inventoryTable tbody');
+            const emptyMsg = document.getElementById('emptyInventory');
+            const table = document.getElementById('inventoryTable');
+
+            tbody.innerHTML = '';
+
+            if (!items || items.length === 0) {
+                emptyMsg.style.display = 'block';
+                table.style.display = 'none';
+                return;
+            }
+
+            emptyMsg.style.display = 'none';
+            table.style.display = 'table';
+
+            items.forEach((item, idx) => {
+                let breakdownHtml = '<div style="display:flex; flex-direction:column; gap:6px;">';
+                item.cpse_breakdown.forEach((c, ci) => {
+                    const price = (item.price_info && item.price_info[ci]) ? item.price_info[ci].price : 'N/A';
+                    const qtyColor = c.quantity > 0 ? 'var(--success)' : 'var(--text-light)';
+                    breakdownHtml += `<div style="background:#F8FAFC; padding:8px 12px; border-radius:8px; border:1px solid var(--border); font-size:0.82rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:600; color:var(--text-dark); background:white; padding:2px 8px; border-radius:4px; border:1px solid var(--border); font-size:0.75rem;">${c.cpse}</span>
+                            <span style="font-weight:700; color:${qtyColor}; font-size:1rem;">${c.quantity.toLocaleString()}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-top:4px; color:var(--text-light); font-size:0.75rem;">
+                            <span style="font-family:monospace;">${c.local_code}</span>
+                            <span>Price: ₹${price !== 'N/A' ? Number(price).toLocaleString() : 'N/A'}</span>
+                        </div>
+                    </div>`;
+                });
+                breakdownHtml += '</div>';
+
+                const qtyBg = item.total_quantity > 0 ? 'linear-gradient(135deg, #10B981, #059669)' : '#94A3B8';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:600; color:var(--text-light);">${idx + 1}</td>
+                    <td><span class="code-badge">${item.cnmc_code}</span></td>
+                    <td style="max-width:250px; font-size:0.88rem;">${item.description || 'N/A'}</td>
+                    <td><span style="background:var(--accent-light); color:#B45309; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:600;">${item.category}</span></td>
+                    <td style="font-weight:500;">${item.uom || 'EA'}</td>
+                    <td style="text-align:right;">
+                        <span style="background:${qtyBg}; color:white; padding:6px 14px; border-radius:8px; font-weight:700; font-size:1.1rem; display:inline-block;">${item.total_quantity.toLocaleString()}</span>
+                        <div style="font-size:0.75rem; color:var(--text-light); margin-top:4px;">${item.cpse_count} CPSE(s)</div>
+                    </td>
+                    <td style="min-width:280px;">${breakdownHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterInventory() {
+            const query = document.getElementById('inventorySearch').value.toLowerCase().trim();
+            if (!query) {
+                renderInventoryTable(inventoryData);
+                return;
+            }
+            const filtered = inventoryData.filter(item => {
+                if (item.cnmc_code.toLowerCase().includes(query)) return true;
+                if ((item.description || '').toLowerCase().includes(query)) return true;
+                if ((item.category || '').toLowerCase().includes(query)) return true;
+                for (const c of item.cpse_breakdown) {
+                    if ((c.cpse || '').toLowerCase().includes(query)) return true;
+                    if ((c.local_code || '').toLowerCase().includes(query)) return true;
+                }
+                return false;
+            });
+            renderInventoryTable(filtered);
         }
 
         async function fetchAuditLogs() {
