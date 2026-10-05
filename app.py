@@ -1004,6 +1004,75 @@ def get_national_demand():
         })
     return jsonify(results)
 
+
+# ── GET /api/inventory-overview ───────────────────────────────────────
+
+@app.route("/api/inventory-overview", methods=["GET"])
+def inventory_overview():
+    """
+    National Inventory Overview — for each approved CNMC code, show:
+    - Combined total quantity across all CPSEs
+    - Individual CPSE-wise quantity breakdown
+    - Representative description, category, UOM
+    """
+    approved_clusters = list(col_clusters.find({"status": "approved"}, {"_id": 0}))
+
+    overview = []
+    for cluster in approved_clusters:
+        total_qty = 0
+        cpse_breakdown = []
+        representative_desc = ""
+        uom = ""
+        for member in cluster.get("members", []):
+            try:
+                qty = float(member.get("qty", 0) or 0)
+            except (ValueError, TypeError):
+                qty = 0
+            total_qty += qty
+            cpse_breakdown.append({
+                "cpse": member.get("cpse", "Unknown"),
+                "local_code": member.get("local_code", ""),
+                "description": member.get("description", ""),
+                "quantity": qty,
+                "uom": member.get("uom", ""),
+            })
+            if not representative_desc and member.get("description"):
+                representative_desc = member["description"]
+            if not uom and member.get("uom"):
+                uom = member["uom"]
+
+        # Also check materials collection for price info
+        price_info = []
+        for member in cluster.get("members", []):
+            mat = col_materials.find_one(
+                {"cpse_name": member.get("cpse"), "local_material_code": member.get("local_code")},
+                {"_id": 0, "price": 1}
+            )
+            price_info.append({
+                "cpse": member.get("cpse", "Unknown"),
+                "price": mat.get("price", "N/A") if mat else "N/A",
+            })
+
+        overview.append({
+            "cnmc_code": cluster["cnmc_code"],
+            "category": cluster.get("category", "GENERAL"),
+            "description": representative_desc,
+            "uom": uom,
+            "total_quantity": total_qty,
+            "cpse_count": len(cpse_breakdown),
+            "cpse_breakdown": cpse_breakdown,
+            "price_info": price_info,
+        })
+
+    # Sort by total quantity descending
+    overview.sort(key=lambda x: x["total_quantity"], reverse=True)
+
+    return jsonify({
+        "total_items": len(overview),
+        "overview": overview,
+    })
+
+
 # ══════════════════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
